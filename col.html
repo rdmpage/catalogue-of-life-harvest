@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Catalogue of Life</title>
+	
+    <!-- jquery -->
+    <script src="jquery-1.11.2.min.js" type="text/javascript"></script>
+    
+    <script>
+    
+	
+		//http://stackoverflow.com/a/25359264
+		$.urlParam = function(name){
+			var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+			if (results==null){
+			   return null;
+			}
+			else{
+			   return results[1] || 0;
+			}
+		}    
+    
+    	
+    	function col(id) {
+			$.getJSON('proxy.php?url=' + encodeURIComponent('http://www.catalogueoflife.org/col/webservice?id=' + id + '&format=json&response=full') + '&callback=?',
+				function(data){
+				
+				 // set browser window title
+				 document.title = data.results[0].name;
+				
+				
+				 var html;
+				 
+				 
+				 $('#title').html(data.results[0].name_html);
+
+				
+				 html = '';
+				 if (data.results[0].accepted_name) {
+				 	html += '<h3>';
+				 	html += '= <a href="col.html?id=' + data.results[0].accepted_name.id + '">';				 	
+				 	html += data.results[0].accepted_name.name_html;
+				 	html += '</a>';
+				 	html += '</h3>';
+				 }
+				 $('#accepted').html(html);
+				 
+				 
+				 html = '';
+				 for (var j in data.results[0].references) {
+				 	html += '<li>';
+				 	
+				 	if (data.results[0].references[j].author) {
+				 	  html += data.results[0].references[j].author;
+				 	}
+				 	
+				 	html += ' ' + data.results[0].references[j].year;
+				 	
+				 	if (data.results[0].references[j].title) {
+				 	  html += ' ' + data.results[0].references[j].title;
+				 	}
+				 	html += ' ' + data.results[0].references[j].source;
+				 	
+				 	html += '</li>';
+				 }
+				 
+				 $('#references').html(html);
+				 
+				 html = '';
+				 for (var j in data.results[0].classification) {
+				 	html += ' ';
+				 	html += '<a href="col.html?id=' + data.results[0].classification[j].id + '">';				 	
+				 	html += data.results[0].classification[j].name_html;
+				 	html += '</a>';
+				 }
+				 $('#classification').html(html);
+				
+				
+				 html = '';
+				 for (var j in data.results[0].child_taxa) {
+				 	html += '<li>';
+				 	html += '<a href="col.html?id=' + data.results[0].child_taxa[j].id + '">';
+					html += data.results[0].child_taxa[j].name_html;
+					html += '</a>';
+				 	html += '</li>';
+				 }
+				 $('#children').html(html);
+				 
+				 html = '';
+				 for (var j in data.results[0].synonyms) {
+				 	html += '<li>';
+				 	html += '<a href="col.html?id=' + data.results[0].synonyms[j].id + '">';				 	
+				 	html += data.results[0].synonyms[j].name_html;
+				 	html += '</a>';
+				 	html += '</li>';
+				 }
+				 $('#synonyms').html(html);
+
+				// source
+				 html = '';
+				 if (data.results[0].source_database) {
+				   if (data.results[0].source_database_url) {
+				     html += '<a href="' + data.results[0].source_database_url + '" target="_new">';	
+				   }			 	
+				 	html += data.results[0].source_database;
+				   if (data.results[0].source_database_url) {
+				     html += '</a>';	
+				   }
+				   html += '<br />';
+
+				   if (data.results[0].online_resource) {
+				     html += '<a href="' + data.results[0].online_resource + '" target="_new">' + data.results[0].online_resource + '</a>'  + '<br />';	
+				   }			 	
+
+				   if (data.results[0].record_scrutiny_date) {
+				     html += data.results[0].record_scrutiny_date.scrutiny + '<br />';	
+				   }			 	
+				   
+				   		 	
+				 }
+				 $('#source').html(html);
+				 
+				 html = '';
+				 if (data.results[0].distribution) {
+				     html += data.results[0].distribution;	
+				}			 	
+				 $('#distribution').html(html);
+				 
+				 
+				 
+				 }
+				
+			);
+		}
+			
+	</script>    
+	
+</head>
+<body>
+
+<div id="classification"></div>
+
+<h1 id="title"></h1>
+<div id="accepted"></div>
+
+<h3>References</h3>
+<ul id="references">
+</ul>
+
+<h3>Children</h3>
+<ul style="column-count:4;-moz-column-count:4;-webkit-column-count:4;" id="children">
+</ul>
+
+<h3>Synonyms</h3>
+<ul id="synonyms">
+</ul>
+
+<h3>Distribution</h3>
+<div id="distribution"></div>
+
+
+<h3>Source</h3>
+<div id="source"></div>
+
+
+	<script>
+	//var id = 'c6623cfd074e4329dd5ed3404dc7ceca';
+	//id = '7615fc7181b8017a4462b0ad396b07b1';
+	//id = '9901fc69411021444da27338999a27e6';
+	
+		// do we have a URL parameter?
+		var id = $.urlParam('id');
+		
+		if (!id) {
+		  id = '9901fc69411021444da27338999a27e6';
+		}
+		
+		col(id);
+	</script>
+	
+	
+	
+</body>
+</html>
